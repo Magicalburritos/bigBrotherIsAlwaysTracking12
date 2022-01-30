@@ -128,11 +128,89 @@ const viewAllRoles = () => {
   promptUser()
 }
 
-const viewAllDepartments = () => {}
+const viewAllDepartments = () => {
+  const sql = `
+  SELECT department.id, 
+  department.departmentName AS De
+   FROM department
+    `
 
-const addEmployee = () => {}
+  server.query(sql, (error, res) => {
+    if (error) throw error
+    console.log('=======================================================')
+    console.log(`                    Departments`)
+    console.log('=======================================================')
+    console.table(res)
+    console.log('=======================================================')
+  })
+  promptUser()
+}
 
-const addRole = () => {}
+const addEmployee = () => {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'firstName',
+      message: 'please enter employees first name!',
+      validate: (firstName) => {
+        if (firstName) {
+          return true
+        } else {
+          console.log('Please enter your employees frist name!')
+          return false
+        }
+      },
+    },
+    {
+      type: 'input',
+      name: 'lastName',
+      message: 'please enter employees last name!',
+      validate: (lastName) => {
+        if (lastName) {
+          return true
+        } else {
+          console.log('Please enter your employees last name!')
+          return false
+        }
+      },
+    },
+    {
+      type: 'input',
+      name: 'role',
+      message: 'what is your employees role',
+      choices: ['Engineer', 'Sales', 'Finance', 'Legal', 'Marketing,'],
+    },
+    {
+      type: 'input',
+      name: 'manager',
+      message: 'who is your employees manager!',
+      choices: managers
+    }
+  ])
+}
+
+const addRole = () => {
+  inquirer.prompt([
+    {
+      name: 'departmentName',
+      type: 'list',
+      message: 'what department is this role in!',
+      choices: ['Engineer', 'Sales', 'Finance', 'Legal', 'Marketing'],
+    },
+    {
+      name: 'newRole',
+      type: 'input',
+      message:'What is the name of you new role?'
+    },
+    {
+      name: 'salary',
+      input: 'input',
+      message: 'what is the salary of the new role?',
+    },
+
+  ])
+    
+  
 
 const addDepartment = () => {}
 
