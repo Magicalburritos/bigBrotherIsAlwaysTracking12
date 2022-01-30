@@ -1,0 +1,28 @@
+{
+  "name": "bigbrotherisalwaystracking12",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node  server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Magicalburritos/bigBrotherIsAlwaysTracking12.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Magicalburritos/bigBrotherIsAlwaysTracking12/issues"
+  },
+  "homepage": "https://github.com/Magicalburritos/bigBrotherIsAlwaysTracking12#readme",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "console.table": "^0.10.0",
+    "dotenv": "^14.3.2",
+    "figlet": "^1.5.2",
+    "inquirer": "^8.2.0",
+    "mysql2": "^2.3.3"
+  }
+}
