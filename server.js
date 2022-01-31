@@ -101,11 +101,11 @@ const viewAllEmployees = () => {
 
 const viewAllRoles = () => {
   const sql = `
-  SELECT roles.id,
-  roles.title,
+  SELECT roles.title,
+  roles.salary,
   department.departmentName AS department
   FROM roles
-  INNER JOIN department ON roles.departmentId = department.id
+  LEFT JOIN department ON roles.departmentId = department.id
    `
 
   server.query(sql, (error, res) => {
@@ -124,7 +124,7 @@ const viewAllRoles = () => {
 const viewAllDepartments = () => {
   const sql = `
   SELECT department.id, 
-  department.departmentName AS De
+  department.departmentName AS Department
    FROM department
     `
 
