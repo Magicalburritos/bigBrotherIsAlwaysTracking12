@@ -2,6 +2,7 @@ const server = require('./config/connection')
 const inquirer = require('inquirer')
 const figlet = require('figlet')
 const cTable = require('console.table')
+const validator = require('validator')
 
 server.connect((error) => {
   if (error) throw error
@@ -245,6 +246,31 @@ const addRole = () => {
   ])
 }
 
-const addDepartment = () => {}
+const addDepartment = () => {
+  const hasNumber = /\d/
+  inquirer
+    .prompt([
+      {
+        name: 'newDepartment',
+        type: 'input',
+        message: 'What is the name of the new Department?',
+        validate: (department) => {
+          if (!hasNumber.test(department)) {
+            return true
+          } else {
+            console.log('Please enter your new Department!')
+            return false
+          }
+        },
+      },
+    ])
+    .then((answer) => {
+      `INSERT INTO departments (department_name)
+                VALUES ('${answers.department_name}')`,
+        (err) => {
+          if (err) throw err
+          viewAllDepartments()
+        })
+}
+    
 
-const updateEmployeeRole = () => {}
