@@ -31,16 +31,9 @@ const promptUser = () => {
           'View All Employees',
           'View All Roles',
           'View All Departments',
-          'View All Employees By Department',
-          'View Department Budgets',
-          'Update Employee Role',
-          'Update Employee Manager',
           'Add Employee',
           'Add Role',
           'Add Department',
-          'Remove Employee',
-          'Remove Role',
-          'Remove Department',
           'Exit',
         ],
       },
@@ -147,46 +140,80 @@ const viewAllDepartments = () => {
 }
 
 const addEmployee = () => {
-  inquirer.prompt([
-    {
-      type: 'input',
-      name: 'firstName',
-      message: 'please enter employees first name!',
-      validate: (firstName) => {
-        if (firstName) {
-          return true
-        } else {
-          console.log('Please enter your employees frist name!')
-          return false
-        }
+  const rolesSql = `SELECT * FROM roles`
+  const managerSql = `SELECT * FROM employee`
+  let managerList, roleList
+  server.query(managerSql, (err, res) => {
+    if (err) throw err
+    return (managerList = res.map(({ id, firstName, lastName }) => ({
+      name: firstName + ' ' + lastName,
+      value: id,
+    })))
+  })
+  console.log('wearehere')
+  server.query(rolesSql, (err, res) => {
+    if (err) throw err
+    return (roleList = res.map(({ id, title }) => ({
+      name: title,
+      value: id,
+    })))
+  })
+
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'firstName',
+        message: 'please enter employees first name!',
+        validate: (firstName) => {
+          if (firstName) {
+            return true
+          } else {
+            console.log('Please enter your employees frist name!')
+            return false
+          }
+        },
       },
-    },
-    {
-      type: 'input',
-      name: 'lastName',
-      message: 'please enter employees last name!',
-      validate: (lastName) => {
-        if (lastName) {
-          return true
-        } else {
-          console.log('Please enter your employees last name!')
-          return false
-        }
+      {
+        type: 'input',
+        name: 'lastName',
+        message: 'please enter employees last name!',
+        validate: (lastName) => {
+          if (lastName) {
+            return true
+          } else {
+            console.log('Please enter your employees last name!')
+            return false
+          }
+        },
       },
-    },
-    {
-      type: 'input',
-      name: 'role',
-      message: 'what is your employees role',
-      choices: ['Engineer', 'Sales', 'Finance', 'Legal', 'Marketing,'],
-    },
-    {
-      type: 'input',
-      name: 'manager',
-      message: 'who is your employees manager!',
-      choices: managers
-    }
-  ])
+      {
+        type: 'input',
+        name: 'role',
+        message: 'what is your employees role',
+        choices: roleList,
+      },
+      {
+        type: 'input',
+        name: 'manager',
+        message: 'who is your employees manager!',
+        choices: managerList,
+      },
+    ])
+    .then((answer) => {
+      const input = [
+        answer.firstName,
+        answer.lastName,
+        answer.role,
+        answer.manager,
+      ]
+      const employeeSql = `INSERT INTO employee(firstName, lastName, rolesId, ManagerId) 
+    VALUES (?,?,?,?)`
+      server.query(employeeSql, input, (err) => {
+        if (err) throw err
+        viewAllEmployees()
+      })
+    })
 }
 
 const addRole = () => {
@@ -200,17 +227,15 @@ const addRole = () => {
     {
       name: 'newRole',
       type: 'input',
-      message:'What is the name of you new role?'
+      message: 'What is the name of you new role?',
     },
     {
       name: 'salary',
       input: 'input',
       message: 'what is the salary of the new role?',
     },
-
   ])
-    
-  
+}
 
 const addDepartment = () => {}
 
