@@ -71,7 +71,7 @@ const promptUser = () => {
       }
 
       if (choices === 'Exit') {
-        connection.end()
+        server.end()
       }
     })
 }
@@ -86,7 +86,7 @@ const viewAllEmployees = () => {
     roles.salary
     FROM employee, roles, department
     WHERE department.id = roles.departmentId
-    AND roles.id = employee.rolesID
+    AND roles.id = employee.rolesId
     ORDER BY employee.id ASC`
 
   server.query(sql, (error, res) => {
@@ -181,7 +181,6 @@ const addEmployee = () => {
           name: title,
           value: id,
         }))
-        console.log(roleList)
         inquirer
           .prompt([
             {
@@ -210,10 +209,9 @@ const addEmployee = () => {
                 ])
                 .then((managerAnswer) => {
                   input.push(managerAnswer.manager)
-                  const employeeSql = `
-                  INSERT INTO employee(firstName, lastName, rolesId, ManagerId) 
-                  VALUES (?,?,?,?)
-                  `
+                  const employeeSql = `INSERT INTO employee (firstName, lastName, rolesId, managerId)
+                VALUES ('${input[0]}', '${input[1]}', '${input[2]}','${input[3]}')`
+
                   server.query(employeeSql, input, (err) => {
                     if (err) throw err
                     viewAllEmployees()
@@ -225,25 +223,48 @@ const addEmployee = () => {
     })
 }
 
-const addRole = () => {
-  inquirer.prompt([
-    {
-      name: 'departmentName',
-      type: 'list',
-      message: 'what department is this role in!',
-      choices: ['Engineer', 'Sales', 'Finance', 'Legal', 'Marketing'],
-    },
-    {
-      name: 'newRole',
-      type: 'input',
-      message: 'What is the name of you new role?',
-    },
-    {
-      name: 'salary',
-      input: 'input',
-      message: 'what is the salary of the new role?',
-    },
-  ])
+addRole = () => {
+  const isNum = /^\d+$/
+  const hasNumber = /\d/
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'role',
+        message: 'What Role would you like to add?',
+        validate: (role) => {
+          if (!hasNumber.test(role)) {
+            return true
+          } else {
+            console.log('Please enter your new Role!')
+            return false
+          }
+        },
+      },
+      {
+        type: 'input',
+        name: 'salary',
+        message: 'What is the salary?',
+        validate: (salary) => {
+          if (isNum.test(salary)) {
+            return true
+          } else {
+            console.log('input $')
+            return false
+          }
+        },
+      },
+    ])
+    .then((answers) => {
+      server.query(
+        `INSERT INTO roles (title, salary)
+                VALUES ('${answers.role}', '${answers.salary}')`,
+        (err) => {
+          if (err) throw err
+          promptUser()
+        }
+      )
+    })
 }
 
 const addDepartment = () => {
@@ -265,12 +286,13 @@ const addDepartment = () => {
       },
     ])
     .then((answer) => {
-      `INSERT INTO departments (department_name)
-                VALUES ('${answers.department_name}')`,
+      server.query(
+        `INSERT INTO department (departmentName)
+                VALUES ('${answer.newDepartment}')`,
         (err) => {
           if (err) throw err
           viewAllDepartments()
-        })
+        }
+      )
+    })
 }
-    
-
