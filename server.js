@@ -142,22 +142,6 @@ const viewAllDepartments = () => {
 const addEmployee = () => {
   const rolesSql = `SELECT * FROM roles`
   const managerSql = `SELECT * FROM employee`
-  let managerList, roleList
-  server.query(managerSql, (err, res) => {
-    if (err) throw err
-    return (managerList = res.map(({ id, firstName, lastName }) => ({
-      name: firstName + ' ' + lastName,
-      value: id,
-    })))
-  })
-  console.log('wearehere')
-  server.query(rolesSql, (err, res) => {
-    if (err) throw err
-    return (roleList = res.map(({ id, title }) => ({
-      name: title,
-      value: id,
-    })))
-  })
 
   inquirer
     .prompt([
@@ -187,31 +171,55 @@ const addEmployee = () => {
           }
         },
       },
-      {
-        type: 'input',
-        name: 'role',
-        message: 'what is your employees role',
-        choices: roleList,
-      },
-      {
-        type: 'input',
-        name: 'manager',
-        message: 'who is your employees manager!',
-        choices: managerList,
-      },
     ])
     .then((answer) => {
-      const input = [
-        answer.firstName,
-        answer.lastName,
-        answer.role,
-        answer.manager,
-      ]
-      const employeeSql = `INSERT INTO employee(firstName, lastName, rolesId, ManagerId) 
-    VALUES (?,?,?,?)`
-      server.query(employeeSql, input, (err) => {
+      const input = [answer.firstName, answer.lastName]
+      server.query(rolesSql, (err, res) => {
         if (err) throw err
-        viewAllEmployees()
+        const roleList = res.map(({ title, id }) => ({
+          name: title,
+          value: id,
+        }))
+        console.log(roleList)
+        inquirer
+          .prompt([
+            {
+              type: 'list',
+              name: 'role',
+              message: 'what is your employees role',
+              choices: roleList,
+            },
+          ])
+          .then((roleAnswer) => {
+            input.push(roleAnswer.role)
+            server.query(managerSql, (err, res) => {
+              if (err) throw err
+              const managerList = res.map(({ id, firstName, lastName }) => ({
+                name: firstName + ' ' + lastName,
+                value: id,
+              }))
+              inquirer
+                .prompt([
+                  {
+                    type: 'list',
+                    name: 'manager',
+                    message: 'who is your employees manager!',
+                    choices: managerList,
+                  },
+                ])
+                .then((managerAnswer) => {
+                  input.push(managerAnswer.manager)
+                  const employeeSql = `
+                  INSERT INTO employee(firstName, lastName, rolesId, ManagerId) 
+                  VALUES (?,?,?,?)
+                  `
+                  server.query(employeeSql, input, (err) => {
+                    if (err) throw err
+                    viewAllEmployees()
+                  })
+                })
+            })
+          })
       })
     })
 }
