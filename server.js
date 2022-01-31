@@ -2,7 +2,6 @@ const server = require('./config/connection')
 const inquirer = require('inquirer')
 const figlet = require('figlet')
 const cTable = require('console.table')
-const validator = require('validator')
 
 server.connect((error) => {
   if (error) throw error
